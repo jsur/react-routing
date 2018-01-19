@@ -1,6 +1,44 @@
 import React from 'react';
+import createHistory from 'history/createBrowserHistory';
+
+const history = createHistory();
+
+const Route = ({ path, component }) => {
+  const pathname = window.location.pathname;
+  if (pathname.match(path)) {
+    return (
+      React.createElement(component)
+    );
+  } else {
+    return null;
+  }
+};
+
+const Link = ({ to, children }) => (
+  <a
+    onClick={(e) => {
+      e.preventDefault();
+      history.push(to);
+    }}
+    // enables the user to hover over links to see where they go
+    href={to}
+  >
+    {
+      // children is a special prop
+      // it is a reference to all React elements contained inside of our Link component
+      children
+    }
+  </a>
+);
 
 class App extends React.Component {
+
+  componentDidMount() {
+    // history object's listen() is passed a function that
+    // is invoked every time the history stack is modified
+    history.listen(() => this.forceUpdate());
+  }
+
   render() {
     return (
       <div
@@ -12,20 +50,21 @@ class App extends React.Component {
 
         <ul>
           <li>
-            <a href='/atlantic'>
+            <Link to='/atlantic'>
               <code>/atlantic</code>
-            </a>
+            </Link>
           </li>
           <li>
-            <a href='/pacific'>
+            <Link to='/pacific'>
               <code>/pacific</code>
-            </a>
+            </Link>
           </li>
         </ul>
 
         <hr />
 
-        {/* We'll insert the Route components here */}
+        <Route path='/atlantic' component={Atlantic} />
+        <Route path='/pacific' component={Pacific} />
       </div>
     );
   }
