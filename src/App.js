@@ -1,10 +1,12 @@
 import React from 'react';
 import createHistory from 'history/createBrowserHistory';
+import PropTypes from 'prop-types';
 
-const history = createHistory();
+// const history = createHistory();
 
-const Route = ({ path, component }) => {
-  const pathname = window.location.pathname;
+// second argument is the location in context
+const Route = ({ path, component }, { location }) => {
+  const pathname = location.pathname;
   if (pathname.match(path)) {
     return (
       React.createElement(component)
@@ -14,7 +16,13 @@ const Route = ({ path, component }) => {
   }
 };
 
-const Link = ({ to, children }) => (
+// IMPORTANT: to receive context a component must white-list 
+// which parts of the context it should receive.
+Route.contextTypes = {
+  location: PropTypes.object
+};
+
+const Link = ({ to, children }, { history }) => (
   <a
     onClick={(e) => {
       e.preventDefault();
@@ -31,41 +39,76 @@ const Link = ({ to, children }) => (
   </a>
 );
 
-class App extends React.Component {
+Link.contextTypes = {
+  history: PropTypes.object
+};
 
-  componentDidMount() {
-    // history object's listen() is passed a function that
-    // is invoked every time the history stack is modified
-    history.listen(() => this.forceUpdate());
+class Router extends React.Component {
+
+  // static allows us to define a property on the class 
+  // Router itself as opposed to instances of Router
+  static childContextTypes = {
+    history: PropTypes.object,
+    location: PropTypes.object
+  };
+
+  constructor(props) {
+    super(props);
+
+    this.history = createHistory();
+    this.history.listen(() => this.forceUpdate());
+  }
+
+  getChildContext() {
+    return {
+      history: this.history,
+      location: window.location
+    };
   }
 
   render() {
+    return this.props.children;
+  }
+
+}
+
+class App extends React.Component {
+
+  /*componentDidMount() {
+    // history object's listen() is passed a function that
+    // is invoked every time the history stack is modified
+    history.listen(() => this.forceUpdate());
+  }*/
+
+  render() {
     return (
-      <div
-        className='ui text container'
-      >
-        <h2 className='ui dividing header'>
-          Which body of water?
-        </h2>
+      <Router>
+        <div
+          className='ui text container'
+        >
+          <h2 className='ui dividing header'>
+            Which body of water?
+          </h2>
 
-        <ul>
-          <li>
-            <Link to='/atlantic'>
-              <code>/atlantic</code>
-            </Link>
-          </li>
-          <li>
-            <Link to='/pacific'>
-              <code>/pacific</code>
-            </Link>
-          </li>
-        </ul>
+          <ul>
+            <li>
+              <Link to='/atlantic'>
+                <code>/atlantic</code>
+              </Link>
+            </li>
+            <li>
+              <Link to='/pacific'>
+                <code>/pacific</code>
+              </Link>
+            </li>
+          </ul>
 
-        <hr />
+          <hr />
 
-        <Route path='/atlantic' component={Atlantic} />
-        <Route path='/pacific' component={Pacific} />
-      </div>
+          <Route path='/atlantic' component={Atlantic} />
+          <Route path='/pacific' component={Pacific} />
+        </div>
+      </Router>
     );
   }
 }
