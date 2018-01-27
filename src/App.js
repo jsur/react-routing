@@ -1,11 +1,20 @@
 import React from 'react';
-import createHistory from 'history/createBrowserHistory';
+// import createHistory from 'history/createBrowserHistory';
 import PropTypes from 'prop-types';
+import {
+  BrowserRouter as Router,
+  Route,
+  Link,
+  Redirect,
+  Switch
+} from 'react-router-dom';
 
-// const history = createHistory();
+// Comment all this below shit out as 
+// the real react-router-dom modules replace them
+
 
 // second argument is the location in context
-const Route = ({ path, component }, { location }) => {
+/*const Route = ({ path, component }, { location }) => {
   const pathname = location.pathname;
   if (pathname.match(path)) {
     return (
@@ -14,11 +23,11 @@ const Route = ({ path, component }, { location }) => {
   } else {
     return null;
   }
-};
+};*/
 
 // IMPORTANT: to receive context a component must white-list 
 // which parts of the context it should receive.
-Route.contextTypes = {
+/*Route.contextTypes = {
   location: PropTypes.object
 };
 
@@ -88,7 +97,7 @@ class Router extends React.Component {
     return this.props.children;
   }
 
-}
+}*/
 
 class BlackSea extends React.Component {
   state = {
@@ -163,9 +172,39 @@ class App extends React.Component {
 
           <hr />
 
-          <Route path='/atlantic' component={Atlantic} />
-          <Route path='/pacific' component={Pacific} />
-          <Route path='/black-sea' component={BlackSea} />
+          {
+            // Switch is an analogue to Angular's Route type
+          }
+          <Switch>
+            <Route path='/atlantic/ocean' render={() => (
+              <div>
+                <h3>Atlantic Ocean - Again!</h3>
+                <p>
+                  Also known as "The Pond."
+                </p>
+              </div>
+            )} />
+            <Route path='/atlantic' component={Atlantic} />
+            <Route path='/pacific' component={Pacific} />
+            <Route path='/black-sea' component={BlackSea} />
+
+            <Route exact path='/' render={() => (
+              <h3>
+                Welcome! Select a body of saline water above.
+              </h3>
+            )} />
+
+            {
+              // Route always passes the prop "location" to its target.
+            }
+            <Route render={({ location }) => (
+              <div className='ui inverted red segment'>
+                <h3>
+                  Error! No matches for <code>{location.pathname}</code>
+                </h3>
+              </div>
+            )} />
+          </Switch>
         </div>
       </Router>
     );
